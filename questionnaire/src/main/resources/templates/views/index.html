@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="http://localhost/file/jquery.min.js"></script>
+	</head>
+	<body>
+		<table border="1">
+			<tr>
+				<td>当前用户</td>
+				<td id="username"></td>
+			</tr>
+			<tr>
+				<td>问卷</td>
+				<td id="questionnaire">
+				<!-- 	<p><a href="?id=1"></a></p> -->
+				</td>
+			</tr>
+			
+		</table>
+		<script>
+			$(function(){
+				init();
+			})
+			function init(){
+				$.post("/user/findQuestionnaire",function(result){
+					var results=result;
+					for(var i=0;i<results.length;i++)
+					{
+						create_view(i,results[i]);
+					}
+				})
+			}
+			function create_view(index,data){
+				var index=index+1;
+				$("#questionnaire").append("<p>"+index+".<a href=http://localhost/page/test?id="+data.id+">"+data.questionnaireName+"</a></p>")
+			}
+		</script>
+	</body>
+</html>

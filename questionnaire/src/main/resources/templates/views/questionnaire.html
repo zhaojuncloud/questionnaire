@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="http://localhost/file/jquery.min.js"></script>
+	</head>
+	<body>
+		<div id="page_test">
+			<div id="question_options">
+				
+				<!-- <div id="1">
+					<hr/>
+					<p>这是第一题</p>
+					<input type="radio" value="1"/>是<br/>
+					<input type="radio" value="1"/>否<br/>
+				</div> -->
+				
+			</div>
+			<div id="updata"><button id="btn_updata">交卷</button></div>
+		</div>
+		
+		<script>
+			$(function(){
+				$("#updata").on("click", "#btn_updata", doUpdata);
+				init()
+			})
+			function init(){
+				$.post("/questionnaire/getUserQuestionnaire",function(result){
+					$("#page_test").val(result.data.questionnaire.id)
+					var questions=result.data.qaos;
+					/* console.log(questions); */
+					for(var i=0;i<questions.length;i++)
+					{
+						creat_view(i,questions[i]);
+					}
+				})
+			}
+			function creat_view(index,data){
+				var div=$("<div>").val(data.question.id);
+				div.append($("<hr/>"));
+				div.append(question_view(index,data));
+				/* console.log(data); */
+				if(data.question.type==2){
+					div.append(options_sig_view_coprty(index,data));
+				}else{
+					div.append(options_sig_view(index,data));
+				}
+				
+				$("#question_options").append(div);
+			}
+			function question_view(index,data){
+				var question=data.question;
+				index+=1;
+				return "<p id="+question.id+"type='question' >"+index+"."+question.questCon+"</p>"
+			}				
+			function options_sig_view(index,data){
+				var options=data.options;
+				var options_v="";
+				for(var i=0;i<options.length;i++){
+					options_v+="<input type='radio' name="+index+" value="+options[i].id+">"+options[i].optCon+"<br/>"
+				}
+				return options_v;
+			}
+			function options_sig_view_coprty(index,data){
+				var options=data.options;
+				var options_v="";
+				for(var i=0;i<options.length;i++){
+					options_v+="<input type='checkbox' name="+index+" value="+options[i].id+">"+options[i].optCon+"<br/>"
+				}
+				return options_v;
+			}
+			/*创建提交  */
+			function doUpdata(){
+				var result={}
+				result.questionnaire={id:$("#page_test").val()}
+				result.qaos=en_result();
+				var json = JSON.stringify(result);
+				console.log(json);
+				$.ajax({
+					type : "post",
+					dataType : "json",
+					contentType : "application/json",
+					url : "/questionnaire/papers",
+					data : json,
+					success : function(Result) {
+						if (Result) {
+							alert(Result.message);
+							window.location.href = "/page/result";
+						}
+					}
+				})
+			}			
+			function en_result(){
+				var qaos=[];
+				$("#question_options").children().each(function(){
+					var questionAndOptions={};
+					var question={};
+					var options=[];
+					
+					var result_div=$(this);
+					question.id=result_div.val();
+					result_div.children("input:checked").each(function(){
+						var option={};
+						option.id=$(this).val();
+						options.push(option);
+					})
+					questionAndOptions.question=question;
+					questionAndOptions.options=options;
+					qaos.push(questionAndOptions);
+				})
+				console.log(qaos);
+				return qaos;
+			}			
+		</script>
+	</body>
+</html>

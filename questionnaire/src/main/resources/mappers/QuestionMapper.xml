@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rst.dao.QuestionMapper">
+	<select id="getAllQuestions" resultType="Question">
+		select
+		id,quest_con,create_user,type,eval_dept_id,create_time,update_time
+		from question
+	</select>
+	<select id="getQuestionById" resultType="Question">
+		select
+		id,quest_con,create_user,type,eval_dept_id,create_time,update_time
+		from question where id=#{id}
+	</select>
+	<insert id="createQuestion" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into question(id,
+		quest_con,
+		create_user,
+		type,
+		eval_dept_id,
+		create_time,
+		update_time)
+		values(null,#{questCon},
+		#{createUser},#{type},#{evalDeptId},#{createTime},#{updateTime})
+	</insert>
+
+</mapper>

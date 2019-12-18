@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="http://localhost/file/jquery.min.js"></script>
+</head>
+<body>
+<body>
+
+	<table id="create_table" border="1">
+		<tr>
+			<td>问卷名称</td>
+			<td><input id="questionnaireName" type="text"
+				name="questionnaireName" /></td>
+		</tr>
+		<tr>
+			<td>考评模式</td>
+			<td id="model"><input type="Radio" name="questionnaireModel"
+				value="店主自评" />店主自评 <input type="Radio" name="questionnaireModel"
+				value="邻居互评" />邻居互评 <input type="Radio" name="questionnaireModel"
+				value="烟草考评" />烟草考评 <input type="Radio" name="questionnaireModel"
+				value="消费者追评" />消费者追评</td>
+		</tr>
+		<tr>
+			<td>考评周期</td>
+			<td id="cycle"><input type="Radio" name="questionnaireCycle"
+				value="1" />每周 <input type="Radio" name="questionnaireCycle"
+				value="2" />每月 <input type="Radio" name="questionnaireCycle"
+				value="3" />每年</td>
+		</tr>
+		<tr>
+			<td>题库选题</td>
+			<td id="questions_list">
+				<!-- <input type="checkbox" name="question" value="1" />第一题 <input
+			type="checkbox" name="question" value="2" />第二题 <input
+			type="checkbox" name="question" value="3" />第三题</td> -->
+			</td>
+		</tr>
+		<tr>
+			<td>创建题目</td>
+			<td id='td_create_question'>题目：<input type='text'
+				name='questCon' /><br /> <input type='radio' name='type' value='1'
+				checked="checked" />单选 <input type='radio' name='type' value='2' />多选
+				<input type='radio' name='type' value='3' />问答<br />
+				<button id='add_option'>添加选项</button> <br />
+				<div id='div_option'>
+					选项内容：<input type='text' name='optCon' /><br /> 分值：<input
+						type='text' name='score' /><br />
+				</div>
+			</td>
+			<td>
+				<button id='btn_create_question'>创建题目</button>
+			</td>
+
+		</tr>
+
+		<tr>
+			<td colspan="2" align="center">
+				<button id="updata">创建问卷</button>
+			</td>
+		</tr>
+	</table>
+
+	<script type="text/javascript">
+		$(function() {
+			$("#create_table").on("click", "#updata", doUpdata);
+			$("#td_create_question").on("click", "#add_option", createOption)
+			$("#create_table").on("click", "#btn_create_question", doCreateQuestion);
+			getAllQuestions();
+		})
+
+		function doUpdata() {
+			var questionnaire = {}
+			questionnaire.questionnaireName = $("#questionnaireName").val();
+			questionnaire.questionnaireModel = $(
+					'input:radio[name="questionnaireModel"]:checked').val();
+			questionnaire.questionnaireCycle = $(
+					'input:radio[name="questionnaireCycle"]:checked').val();
+			var a = [];
+			$('input:checkbox[name=question]:checked').each(function() {
+				a.push($(this).val())
+			});
+			if(a.length==0)
+				{
+					alert("请选择题目");
+					return;
+				}
+			
+			questionnaire.questionsId = a;
+			console.log(questionnaire);
+			sendQuestionnaire(questionnaire);
+		}
+		function sendQuestionnaire(data) {
+			var json = JSON.stringify(data);
+			console.log(json);
+			$.ajax({
+				type : "post",
+				dataType : "json",
+				contentType : "application/json",
+				url : "/questionnaire/create",
+				data : json,
+				success : function(Result) {
+					if (Result) {
+						alert(Result.message);
+					}
+				}
+			})
+		}
+
+		function getAllQuestions() {
+			$("#questions_list").html("");
+			$.post('/question/getAllQuestion', function(result) {
+				if(result.status!=200){
+					alert("问题列表获取异常！！！");
+					return 
+				}
+				var questions = result.data;
+				console.log(questions);
+				for (var i = 0; i < questions.length; i++) {
+					var vid = doCreateQuestionList(questions[i]);
+					$("#questions_list").append(vid);
+				}
+			});
+		}
+		function doCreateQuestionList(question) {
+			var questionTxt = "<input type='checkbox' name='question' value="+question.id+" />"
+					+ question.questCon + "<br/>"
+			return questionTxt;
+		}
+		/* -------------------------------------------------------- */
+		function createOption() {
+					var option = "";
+					option +=
+						"<div id='div_option'>选项内容：<input type='text' name='optCon' /><br />分值：<input type='text' name='score' /><br /></div>";
+
+					$("#td_create_question").append(option);
+					console.log(option);
+				}
+		function doCreateQuestion() {
+			var question = {};
+			var options = [];
+			question.questCon = $("#td_create_question").children("input:text[name='questCon']").val();
+			question.type = $("#td_create_question").children("input:radio[name='type']:checked").val();
+			
+
+			$("#td_create_question #div_option").each(function() {
+				var option = {};
+				option.optCon = $(this).children("input:text[name='optCon']").val();
+				option.score = $(this).children("input:text[name='score']").val();
+				options.push(option);
+			})
+			question.options=options;
+			console.log(question);
+			sendQuestion(question)
+		}
+		function sendQuestion(data) {
+			var json = JSON.stringify(data);
+			console.log(json);
+			$.ajax({
+				type: "post",
+				dataType: "json",
+				contentType: "application/json",
+				url: "/question/createQuestion",
+				data: json,
+				success: function(Result) {
+					if (Result.status==200) {
+						alert(Result.message);
+					}
+					getAllQuestions();
+					format();
+				}
+			})
+		}
+		function format(){
+			 $("#td_create_question").children("input:text[name='questCon']").val("");
+			 $("#td_create_question #div_option").each(function() {
+					$(this).children("input:text[name='optCon']").val("");
+					$(this).children("input:text[name='score']").val("");
+				})
+		}
+	</script>
+</body>
+</html>

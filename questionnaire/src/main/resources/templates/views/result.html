@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="http://localhost/file/jquery.min.js"></script>
+	</head>
+	<body>
+		<div id="page_test">
+			<div id="question_options">
+				
+				<!-- <div id="1">
+					<hr/>
+					<p>这是第一题</p>
+					<input type="radio" value="1"/>是<br/>
+					<input type="radio" value="1"/>否<br/>
+				</div> -->
+				
+			</div>
+			<div id="sum_score">
+				
+			</div>
+		</div>
+		
+		<script>
+			$(function(){
+				init();
+				getSum();
+			})
+			function init(){
+				$.post("/questionnaire/overTest",function(result){
+					var questions=result;
+					/* console.log(questions); */
+					for(var i=0;i<questions.length;i++)
+					{
+						creat_view(i,questions[i]);
+					}
+					
+				})
+				
+			}
+			function creat_view(index,data){
+				var div=$("<div>").attr("value",data.question.id);
+				div.append($("<hr/>"));
+				div.append(question_view(index,data));
+				div.append(options_sig_view(index,data));
+				$("#question_options").append(div);
+			}
+			function question_view(index,data){
+				var question=data.question;
+				index+=1;
+				return "<p id="+question.id+"type='question' >"+index+"."+question.questCon+"</p>"
+			}				
+			function options_sig_view(index,data){
+				var options=data.options;
+				var options_v="";
+				for(var i=0;i<options.length;i++){
+					options_v+="<p name="+index+" value="+options[i].id+">"+options[i].optCon+"</p>"
+				}
+				return options_v;
+			}
+			function getSum(){
+				$.post("/questionnaire/userSum",function(result){
+					$("#sum_score").append("<h2><font color='red'>分值:"+result.data+"</font></h2>")
+				})
+			}
+			
+		</script>
+	</body>
+</html>

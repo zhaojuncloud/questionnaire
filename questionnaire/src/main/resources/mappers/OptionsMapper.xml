@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rst.dao.OptionsMapper">
+	<select id="getOptionByQuestionId" resultType="Option">
+		select * from options where question_id=#{id}
+	</select>
+	<select id="getOptionById" resultType="Option">
+		select * from options where id=#{id}
+	</select>
+	<insert id="createOption">
+		insert into options(id, 
+		question_id, 
+		opt_con, 
+		create_user, 
+		score, 
+		create_time, 
+		update_time)
+		values(null,#{questionId},#{optCon},#{createUser},#{score},#{createTime},#{updateTime})
+	</insert>
+</mapper>

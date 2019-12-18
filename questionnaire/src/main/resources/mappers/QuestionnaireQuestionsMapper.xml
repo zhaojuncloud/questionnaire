@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rst.dao.QuestionnaireQuestionsMapper">
+	<insert id="addQuestionById">
+		insert into questionnaire_questions values(null,#{questionnaire_id},#{question_id})
+	</insert>
+	<select id="getQuestionsIdById" resultType="int">
+		select question_id from questionnaire_questions where questionnaire_id=#{id}
+	</select>
+</mapper>

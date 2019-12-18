@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rst.dao.QuestionnaireMapper"> 
+	<insert id="addQuestionnaire" useGeneratedKeys="true" keyProperty="id">
+		insert into questionnaire values (#{id},
+		#{questionnaireName},
+		#{questionnaireModel},
+		#{questionnaireCycle},
+		#{state},#{createTime}) 
+	</insert>
+	<select id="getQuestionnaireById" resultType="Questionnaire">
+		select * from questionnaire where id=#{id}
+	</select>
+	<select id="getQuestionnaires" resultType="Questionnaire">
+		select * from questionnaire where id in(
+			<foreach collection="questionnaireIds" separator=","
+			item="id">
+			#{id}
+		</foreach>
+		)
+	</select>
+</mapper> 
